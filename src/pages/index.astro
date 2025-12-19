@@ -1,0 +1,511 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import CarCard from '../components/CarCard.astro';
+import FilterBar from '../components/FilterBar.astro';
+import Statistics from '../components/Statistics.astro';
+
+// Get all cars and sort by year (oldest first)
+const allCars = await getCollection('cars');
+const cars = allCars.sort((a, b) => a.data.year - b.data.year);
+---
+
+<Layout title="Oscar's Classic Model Cars Collection">
+  <section class="hero-section">
+    <h2 class="hero-title">Vintage Automotive Miniatures</h2>
+    <p class="hero-description">
+      A curated collection of over 700 vintage model cars from the pre-1960 era,
+      lovingly collected since 1994.
+    </p>
+  </section>
+
+  <Statistics cars={cars} />
+
+  <FilterBar cars={cars} />
+
+  <section class="collection-section">
+    <div id="car-grid" class="car-grid">
+      {cars.map(car => (
+        <div class="car-grid-item" data-car={JSON.stringify(car.data)}>
+          <CarCard car={car} />
+        </div>
+      ))}
+    </div>
+
+    <div id="no-results" class="no-results" style="display: none;">
+      <span class="no-results-icon">🔍</span>
+      <h3>No cars found</h3>
+      <p>Try adjusting your filters or search terms</p>
+    </div>
+  </section>
+
+  <!-- Car Detail Modal -->
+  <div id="car-modal" class="modal" role="dialog" aria-modal="true" style="display: none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close modal">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .hero-section {
+    text-align: center;
+    padding: 2rem 0 3rem;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .hero-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .collection-section {
+    padding: 1rem 0 3rem;
+  }
+
+  .car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+
+  .no-results-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .no-results h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+    color: var(--text-secondary);
+  }
+
+  .no-results p {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  /* Modal styles */
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .modal-content {
+    position: relative;
+    background: var(--card-background);
+    border-radius: 16px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+
+  .modal-close:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-description {
+      font-size: 1rem;
+    }
+
+    .car-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .car-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Client-side filtering and search logic
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const filterSelects = document.querySelectorAll('.filter-select');
+  const sortSelect = document.getElementById('sort-by') as HTMLSelectElement;
+  const clearFiltersBtn = document.getElementById('clear-filters');
+  const resultsCount = document.getElementById('results-count');
+  const carGrid = document.getElementById('car-grid');
+  const noResults = document.getElementById('no-results');
+  const carItems = document.querySelectorAll('.car-grid-item');
+
+  let debounceTimer: number;
+
+  function debounce(fn: Function, delay: number) {
+    return (...args: any[]) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  function getCarData(item: Element): any {
+    const dataAttr = item.getAttribute('data-car');
+    return dataAttr ? JSON.parse(dataAttr) : null;
+  }
+
+  function filterCars() {
+    const searchTerm = searchInput?.value.toLowerCase() || '';
+    const manufacturerFilter = (document.getElementById('filter-manufacturer') as HTMLSelectElement)?.value || '';
+    const scaleFilter = (document.getElementById('filter-scale') as HTMLSelectElement)?.value || '';
+    const typeFilter = (document.getElementById('filter-type') as HTMLSelectElement)?.value || '';
+    const originFilter = (document.getElementById('filter-origin') as HTMLSelectElement)?.value || '';
+    const decadeFilter = (document.getElementById('filter-decade') as HTMLSelectElement)?.value || '';
+
+    let visibleCount = 0;
+
+    carItems.forEach(item => {
+      const car = getCarData(item);
+      if (!car) return;
+
+      let visible = true;
+
+      // Search filter
+      if (searchTerm) {
+        const searchableText = `${car.name} ${car.make} ${car.manufacturer} ${car.year} ${car.type} ${car.origin}`.toLowerCase();
+        if (!searchableText.includes(searchTerm)) {
+          visible = false;
+        }
+      }
+
+      // Dropdown filters
+      if (visible && manufacturerFilter && car.manufacturer !== manufacturerFilter) {
+        visible = false;
+      }
+      if (visible && scaleFilter && car.scale !== scaleFilter) {
+        visible = false;
+      }
+      if (visible && typeFilter && car.type !== typeFilter) {
+        visible = false;
+      }
+      if (visible && originFilter && car.origin !== originFilter) {
+        visible = false;
+      }
+
+      // Decade filter
+      if (visible && decadeFilter) {
+        const [minYear, maxYear] = decadeFilter.split('-').map(Number);
+        if (car.year < minYear || car.year > maxYear) {
+          visible = false;
+        }
+      }
+
+      (item as HTMLElement).style.display = visible ? '' : 'none';
+      if (visible) visibleCount++;
+    });
+
+    // Update results count
+    if (resultsCount) {
+      resultsCount.textContent = `${visibleCount} of ${carItems.length} cars`;
+    }
+
+    // Show/hide no results message
+    if (noResults && carGrid) {
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+      carGrid.style.display = visibleCount === 0 ? 'none' : 'grid';
+    }
+  }
+
+  function sortCars() {
+    const sortValue = sortSelect?.value || 'year-asc';
+    const itemsArray = Array.from(carItems);
+
+    itemsArray.sort((a, b) => {
+      const carA = getCarData(a);
+      const carB = getCarData(b);
+      if (!carA || !carB) return 0;
+
+      switch (sortValue) {
+        case 'year-asc':
+          return carA.year - carB.year;
+        case 'year-desc':
+          return carB.year - carA.year;
+        case 'name-asc':
+          return carA.name.localeCompare(carB.name);
+        case 'name-desc':
+          return carB.name.localeCompare(carA.name);
+        case 'manufacturer-asc':
+          return carA.manufacturer.localeCompare(carB.manufacturer);
+        default:
+          return 0;
+      }
+    });
+
+    // Reorder DOM
+    if (carGrid) {
+      itemsArray.forEach(item => carGrid.appendChild(item));
+    }
+  }
+
+  function clearFilters() {
+    if (searchInput) searchInput.value = '';
+    filterSelects.forEach(select => {
+      (select as HTMLSelectElement).selectedIndex = 0;
+    });
+    filterCars();
+  }
+
+  // Event listeners
+  searchInput?.addEventListener('input', debounce(filterCars, 300));
+  filterSelects.forEach(select => {
+    select.addEventListener('change', filterCars);
+  });
+  sortSelect?.addEventListener('change', () => {
+    sortCars();
+    filterCars();
+  });
+  clearFiltersBtn?.addEventListener('click', clearFilters);
+
+  // Initial count
+  if (resultsCount) {
+    resultsCount.textContent = `${carItems.length} of ${carItems.length} cars`;
+  }
+
+  // Modal functionality
+  const modal = document.getElementById('car-modal');
+  const modalBody = document.getElementById('modal-body');
+  const modalBackdrop = modal?.querySelector('.modal-backdrop');
+  const modalClose = modal?.querySelector('.modal-close');
+
+  function openModal(car: any) {
+    if (!modal || !modalBody) return;
+
+    modalBody.innerHTML = `
+      <div class="modal-car">
+        ${car.images && car.images.length > 0 ? `
+          <div class="modal-image">
+            <img src="${car.images[0]}" alt="${car.name}" loading="lazy" />
+          </div>
+        ` : ''}
+        <h2 class="modal-title">${car.name}</h2>
+
+        <div class="modal-sections">
+          <div class="modal-section">
+            <h3>Vehicle</h3>
+            <dl class="modal-details">
+              <dt>Make</dt><dd>${car.make}</dd>
+              <dt>Year</dt><dd>${car.year}</dd>
+              <dt>Origin</dt><dd>${car.origin}</dd>
+              <dt>Type</dt><dd>${car.type}</dd>
+            </dl>
+          </div>
+
+          <div class="modal-section">
+            <h3>Model</h3>
+            <dl class="modal-details">
+              <dt>Manufacturer</dt><dd>${car.manufacturer}</dd>
+              <dt>Scale</dt><dd>${car.scale}</dd>
+              <dt>Made In</dt><dd>${car.madeIn}</dd>
+              <dt>Material</dt><dd>${car.material}</dd>
+              ${car.series ? `<dt>Series</dt><dd>${car.series}</dd>` : ''}
+              ${car.productionDate ? `<dt>Production</dt><dd>${car.productionDate}</dd>` : ''}
+            </dl>
+          </div>
+        </div>
+
+        ${car.wikipediaUrl ? `
+          <a href="${car.wikipediaUrl}" target="_blank" rel="noopener" class="modal-link">
+            View on Wikipedia
+          </a>
+        ` : ''}
+
+        ${car.tags && car.tags.length > 0 ? `
+          <div class="modal-tags">
+            ${car.tags.map((tag: string) => `<span class="modal-tag">${tag}</span>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Card click handlers
+  carItems.forEach(item => {
+    const card = item.querySelector('.car-card');
+    card?.addEventListener('click', () => {
+      const car = getCarData(item);
+      if (car) openModal(car);
+    });
+  });
+
+  // Modal close handlers
+  modalBackdrop?.addEventListener('click', closeModal);
+  modalClose?.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+
+<style is:global>
+  /* Modal inner styles */
+  .modal-car {
+    text-align: center;
+  }
+
+  .modal-image {
+    width: 100%;
+    max-height: 400px;
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .modal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--bg-secondary);
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem;
+  }
+
+  .modal-sections {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+
+  .modal-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+  }
+
+  .modal-details dt {
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .modal-details dd {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+
+  .modal-link {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    transition: opacity 0.2s;
+  }
+
+  .modal-link:hover {
+    opacity: 0.9;
+  }
+
+  .modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .modal-tag {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 600px) {
+    .modal-sections {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

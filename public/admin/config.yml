@@ -1,0 +1,166 @@
+backend:
+  name: github
+  repo: john-guerra/oscar-car-collection
+  branch: main
+
+# For local testing without authentication
+local_backend: true
+
+media_folder: public/images/cars
+public_folder: /images/cars
+
+collections:
+  - name: cars
+    label: Cars
+    label_singular: Car
+    folder: src/content/cars
+    create: true
+    slug: "{{year}}-{{fields.make | slugify}}"
+    sortable_fields: ['name', 'year', 'make', 'manufacturer']
+    summary: "{{year}} {{make}} - {{manufacturer}}"
+    fields:
+      - label: "Name"
+        name: "name"
+        widget: "string"
+        hint: "Full name of the car model (e.g., '1898 Renault Voiturette')"
+
+      - label: "Year"
+        name: "year"
+        widget: "number"
+        value_type: "int"
+        min: 1880
+        max: 1980
+        hint: "Year the original vehicle was manufactured"
+
+      - label: "Make"
+        name: "make"
+        widget: "string"
+        hint: "Vehicle manufacturer/brand (e.g., 'Renault', 'Ford', 'Mercedes Benz')"
+
+      - label: "Origin"
+        name: "origin"
+        widget: "select"
+        options:
+          - France
+          - Germany
+          - England
+          - USA
+          - Italy
+          - Japan
+          - China
+          - Austria
+          - Belgium
+          - Czechoslovakia
+          - Russia
+          - Spain
+          - Sweden
+          - Switzerland
+          - Unknown
+        hint: "Country where the original vehicle was manufactured"
+
+      - label: "Type"
+        name: "type"
+        widget: "select"
+        options:
+          - Touring
+          - Racing
+          - Saloon
+          - Sports
+          - Truck
+          - Bus
+          - Van
+          - Fire Engine
+          - Ambulance
+          - Military
+          - Taxi
+          - Police
+          - Motorcycle
+          - Locomotive
+          - Other
+          - Unknown
+        hint: "Type of vehicle"
+
+      - label: "Manufacturer"
+        name: "manufacturer"
+        widget: "string"
+        hint: "Model manufacturer (e.g., 'Matchbox', 'Dinky', 'Corgi')"
+
+      - label: "Model Number"
+        name: "modelNumber"
+        widget: "string"
+        required: false
+        hint: "Manufacturer's catalog number"
+
+      - label: "Scale"
+        name: "scale"
+        widget: "select"
+        options:
+          - "1:43"
+          - "1:48"
+          - "1:50"
+          - "1:55"
+          - "1:64"
+          - "1:76"
+          - "1:87"
+          - "1:18"
+          - "1:24"
+          - Other
+        default: "1:43"
+
+      - label: "Made In"
+        name: "madeIn"
+        widget: "string"
+        hint: "Country where the model was manufactured"
+
+      - label: "Material"
+        name: "material"
+        widget: "select"
+        options:
+          - Diecast
+          - White Metal
+          - Plastic
+          - Resin
+          - Tin
+          - Mixed
+          - Unknown
+        default: "Diecast"
+
+      - label: "Production Date"
+        name: "productionDate"
+        widget: "string"
+        required: false
+        hint: "When the model was produced (e.g., '1981', '2010-2013')"
+
+      - label: "Series"
+        name: "series"
+        widget: "string"
+        required: false
+        hint: "Model series name (e.g., 'Models of Yesteryear')"
+
+      - label: "Wikipedia URL"
+        name: "wikipediaUrl"
+        widget: "string"
+        required: false
+        hint: "Link to Wikipedia article about the original vehicle"
+
+      - label: "Images"
+        name: "images"
+        widget: "list"
+        required: false
+        field:
+          label: "Image"
+          name: "image"
+          widget: "image"
+
+      - label: "Published Date"
+        name: "publishedDate"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        format: "YYYY-MM-DD"
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        hint: "Tags for filtering (e.g., 'Racing', 'France', '1930s')"

@@ -1,0 +1,217 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  cars: CollectionEntry<'cars'>[];
+}
+
+const { cars } = Astro.props;
+
+// Extract unique values for filters
+const manufacturers = [...new Set(cars.map(c => c.data.manufacturer))].sort();
+const scales = [...new Set(cars.map(c => c.data.scale))].sort();
+const types = [...new Set(cars.map(c => c.data.type))].sort();
+const materials = [...new Set(cars.map(c => c.data.material))].sort();
+const origins = [...new Set(cars.map(c => c.data.origin))].sort();
+
+// Decade ranges
+const decades = [
+  { label: 'Before 1900', min: 1800, max: 1899 },
+  { label: '1900s', min: 1900, max: 1909 },
+  { label: '1910s', min: 1910, max: 1919 },
+  { label: '1920s', min: 1920, max: 1929 },
+  { label: '1930s', min: 1930, max: 1939 },
+  { label: '1940s', min: 1940, max: 1949 },
+  { label: '1950s', min: 1950, max: 1959 },
+  { label: '1960s', min: 1960, max: 1969 },
+];
+---
+
+<section class="filter-section">
+  <div class="search-container">
+    <input
+      type="text"
+      id="search-input"
+      class="search-input"
+      placeholder="Search cars by name, make, year..."
+      aria-label="Search cars"
+    />
+    <span class="search-icon">🔍</span>
+  </div>
+
+  <div class="filters-container">
+    <div class="filter-group">
+      <label for="filter-manufacturer" class="filter-label">Manufacturer</label>
+      <select id="filter-manufacturer" class="filter-select" data-filter="manufacturer">
+        <option value="">All Manufacturers</option>
+        {manufacturers.map(m => <option value={m}>{m}</option>)}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filter-scale" class="filter-label">Scale</label>
+      <select id="filter-scale" class="filter-select" data-filter="scale">
+        <option value="">All Scales</option>
+        {scales.map(s => <option value={s}>{s}</option>)}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filter-type" class="filter-label">Type</label>
+      <select id="filter-type" class="filter-select" data-filter="type">
+        <option value="">All Types</option>
+        {types.map(t => <option value={t}>{t}</option>)}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filter-origin" class="filter-label">Origin</label>
+      <select id="filter-origin" class="filter-select" data-filter="origin">
+        <option value="">All Origins</option>
+        {origins.map(o => <option value={o}>{o}</option>)}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filter-decade" class="filter-label">Era</label>
+      <select id="filter-decade" class="filter-select" data-filter="decade">
+        <option value="">All Eras</option>
+        {decades.map(d => <option value={`${d.min}-${d.max}`}>{d.label}</option>)}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="sort-by" class="filter-label">Sort By</label>
+      <select id="sort-by" class="filter-select">
+        <option value="year-asc">Year (Oldest First)</option>
+        <option value="year-desc">Year (Newest First)</option>
+        <option value="name-asc">Name (A-Z)</option>
+        <option value="name-desc">Name (Z-A)</option>
+        <option value="manufacturer-asc">Manufacturer</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="filter-actions">
+    <button id="clear-filters" class="clear-filters-btn">Clear All Filters</button>
+    <span id="results-count" class="results-count"></span>
+  </div>
+</section>
+
+<style>
+  .filter-section {
+    background: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .search-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: border-color 0.2s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+    opacity: 0.5;
+  }
+
+  .filters-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .filter-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .filter-select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+  }
+
+  .filter-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .clear-filters-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+
+  .clear-filters-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+  }
+
+  .results-count {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .filters-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .filters-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

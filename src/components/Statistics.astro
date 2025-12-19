@@ -1,0 +1,291 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  cars: CollectionEntry<'cars'>[];
+}
+
+const { cars } = Astro.props;
+
+// Calculate statistics
+const totalCars = cars.length;
+
+// Count by manufacturer
+const manufacturerCounts: Record<string, number> = {};
+cars.forEach(car => {
+  const m = car.data.manufacturer;
+  manufacturerCounts[m] = (manufacturerCounts[m] || 0) + 1;
+});
+const topManufacturers = Object.entries(manufacturerCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 5);
+const maxManufacturerCount = topManufacturers[0]?.[1] || 1;
+
+// Count by scale
+const scaleCounts: Record<string, number> = {};
+cars.forEach(car => {
+  const s = car.data.scale;
+  scaleCounts[s] = (scaleCounts[s] || 0) + 1;
+});
+const topScales = Object.entries(scaleCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 5);
+
+// Count by origin
+const originCounts: Record<string, number> = {};
+cars.forEach(car => {
+  const o = car.data.origin;
+  originCounts[o] = (originCounts[o] || 0) + 1;
+});
+const topOrigins = Object.entries(originCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 5);
+
+// Year range
+const years = cars.map(c => c.data.year).filter(y => y > 0);
+const minYear = Math.min(...years);
+const maxYear = Math.max(...years);
+
+// Unique manufacturers count
+const uniqueManufacturers = Object.keys(manufacturerCounts).length;
+---
+
+<section class="statistics-section">
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="stat-number" data-count={totalCars}>0</span>
+      <span class="stat-label">Model Cars</span>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-number" data-count={uniqueManufacturers}>0</span>
+      <span class="stat-label">Manufacturers</span>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-text">{minYear} - {maxYear}</span>
+      <span class="stat-label">Era Coverage</span>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3 class="stat-card-title">Top Manufacturers</h3>
+      <div class="stat-bars">
+        {topManufacturers.map(([name, count]) => (
+          <div class="stat-bar-row">
+            <span class="stat-bar-label">{name}</span>
+            <div class="stat-bar-container">
+              <div
+                class="stat-bar"
+                style={`width: ${(count / maxManufacturerCount) * 100}%`}
+              >
+                <span class="stat-bar-value">{count}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3 class="stat-card-title">By Scale</h3>
+      <div class="stat-bars">
+        {topScales.map(([name, count]) => (
+          <div class="stat-bar-row">
+            <span class="stat-bar-label">{name}</span>
+            <div class="stat-bar-container">
+              <div
+                class="stat-bar"
+                style={`width: ${(count / topScales[0][1]) * 100}%`}
+              >
+                <span class="stat-bar-value">{count}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3 class="stat-card-title">By Origin</h3>
+      <div class="stat-bars">
+        {topOrigins.map(([name, count]) => (
+          <div class="stat-bar-row">
+            <span class="stat-bar-label">{name}</span>
+            <div class="stat-bar-container">
+              <div
+                class="stat-bar"
+                style={`width: ${(count / topOrigins[0][1]) * 100}%`}
+              >
+                <span class="stat-bar-value">{count}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .statistics-section {
+    margin-bottom: 2rem;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-stat {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--card-background);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .stat-number,
+  .stat-text {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .stat-card {
+    background: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .stat-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .stat-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .stat-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .stat-bar-label {
+    flex: 0 0 100px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stat-bar-container {
+    flex: 1;
+    height: 24px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .stat-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary));
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.5rem;
+    min-width: 30px;
+    transition: width 0.5s ease-out;
+  }
+
+  .stat-bar-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  @media (max-width: 480px) {
+    .stat-number,
+    .stat-text {
+      font-size: 2rem;
+    }
+
+    .stat-bar-label {
+      flex: 0 0 80px;
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<script>
+  // Animate number counters
+  function animateCounters() {
+    const counters = document.querySelectorAll('[data-count]');
+    counters.forEach(counter => {
+      const target = parseInt(counter.getAttribute('data-count') || '0', 10);
+      const duration = 1500;
+      const start = performance.now();
+
+      function update(currentTime: number) {
+        const elapsed = currentTime - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(easeOut * target);
+
+        counter.textContent = current.toString();
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          counter.textContent = target.toString();
+        }
+      }
+
+      requestAnimationFrame(update);
+    });
+  }
+
+  // Run when element is visible
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounters();
+        observer.disconnect();
+      }
+    });
+  });
+
+  const statsSection = document.querySelector('.statistics-section');
+  if (statsSection) {
+    observer.observe(statsSection);
+  }
+</script>
