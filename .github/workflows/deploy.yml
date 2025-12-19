@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/redesign-car-collection-site-BG5jj]
   workflow_dispatch:
 
 permissions:
