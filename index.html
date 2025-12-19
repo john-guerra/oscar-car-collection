@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscar's Classic Model Cars Collection</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🚗</span>
+                <div class="logo-text">
+                    <h1>Oscar's Collection</h1>
+                    <p class="tagline">Classic Model Cars Since 1994</p>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="#collection" class="nav-link">Collection</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#stats" class="nav-link">Statistics</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </nav>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2>A 30-Year Journey Through Automotive History</h2>
+                <p>Exploring the golden age of automobiles through meticulously crafted scale models.
+                   From elegant touring cars to legendary racing machines, each piece tells a story.</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number" id="totalCars">0</span>
+                        <span class="stat-label">Models</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="totalManufacturers">0</span>
+                        <span class="stat-label">Manufacturers</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1960</span>
+                        <span class="stat-label">Era Focus</span>
+                    </div>
+                </div>
+                <a href="#collection" class="cta-button">Explore Collection</a>
+            </div>
+        </section>
+
+        <!-- Collection Section -->
+        <section id="collection" class="collection">
+            <div class="collection-header">
+                <h2>The Collection</h2>
+                <p>Browse through carefully curated scale models from renowned manufacturers</p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by name, manufacturer, or year..." aria-label="Search cars">
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="manufacturerFilter">Manufacturer</label>
+                        <select id="manufacturerFilter">
+                            <option value="">All Manufacturers</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="scaleFilter">Scale</label>
+                        <select id="scaleFilter">
+                            <option value="">All Scales</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="typeFilter">Type</label>
+                        <select id="typeFilter">
+                            <option value="">All Types</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="eraFilter">Era</label>
+                        <select id="eraFilter">
+                            <option value="">All Eras</option>
+                            <option value="1900s">1900s</option>
+                            <option value="1910s">1910s</option>
+                            <option value="1920s">1920s</option>
+                            <option value="1930s">1930s</option>
+                            <option value="1940s">1940s</option>
+                            <option value="1950s">1950s</option>
+                            <option value="1860s">1860s (Locomotives)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="sortBy">Sort By</label>
+                        <select id="sortBy">
+                            <option value="year-asc">Year (Oldest First)</option>
+                            <option value="year-desc">Year (Newest First)</option>
+                            <option value="name-asc">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="manufacturer">Manufacturer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="clear-filters" id="clearFilters">Clear All Filters</button>
+            </div>
+
+            <!-- Results Count -->
+            <div class="results-info">
+                <span id="resultsCount">Showing all models</span>
+            </div>
+
+            <!-- Car Grid -->
+            <div class="car-grid" id="carGrid">
+                <!-- Cars will be dynamically inserted here -->
+            </div>
+
+            <!-- No Results Message -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <span class="no-results-icon">🔍</span>
+                <h3>No models found</h3>
+                <p>Try adjusting your search or filters</p>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about">
+            <div class="about-content">
+                <h2>About This Collection</h2>
+                <div class="about-grid">
+                    <div class="about-text">
+                        <p>This collection represents a <strong>30-year journey</strong> through the golden age of automobiles,
+                           meticulously assembled piece by piece.</p>
+                        <p>With a focus on models representing vehicles up to <strong>1960</strong>, the collection
+                           showcases the craftsmanship of renowned manufacturers like <strong>Matchbox</strong>,
+                           <strong>Lansdowne</strong>, and <strong>Gowland & Gowland</strong>.</p>
+                        <p>Each model is carefully selected for its historical significance, quality of craftsmanship,
+                           and the story it tells about automotive history. From elegant touring cars to legendary
+                           racing machines, every piece in this collection has been chosen with passion and dedication.</p>
+                        <p>The collection continues to grow, with new discoveries being added regularly.
+                           Welcome to explore and share in the appreciation of these miniature masterpieces.</p>
+                    </div>
+                    <div class="about-features">
+                        <div class="feature">
+                            <span class="feature-icon">🏆</span>
+                            <h4>Premium Quality</h4>
+                            <p>Hand-selected models from world-renowned manufacturers</p>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">📚</span>
+                            <h4>Historical Focus</h4>
+                            <p>Specializing in pre-1960 automotive history</p>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🌍</span>
+                            <h4>Global Origins</h4>
+                            <p>Models from USA, England, Germany, and beyond</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section id="stats" class="stats-section">
+            <h2>Collection Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>By Manufacturer</h4>
+                    <div id="manufacturerStats" class="stat-bars"></div>
+                </div>
+                <div class="stat-card">
+                    <h4>By Scale</h4>
+                    <div id="scaleStats" class="stat-bars"></div>
+                </div>
+                <div class="stat-card">
+                    <h4>By Material</h4>
+                    <div id="materialStats" class="stat-bars"></div>
+                </div>
+                <div class="stat-card">
+                    <h4>By Country of Origin</h4>
+                    <div id="countryStats" class="stat-bars"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Car Detail Modal -->
+    <div class="modal" id="carModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be dynamically inserted -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Oscar's Classic Model Cars Collection. All rights reserved.</p>
+            <p class="footer-note">A passion project 30 years in the making</p>
+        </div>
+    </footer>
+
+    <script src="cars.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
