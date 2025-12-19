@@ -1,0 +1,133 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="About - Oscar's Classic Model Cars Collection">
+  <section class="about-section">
+    <h2 class="about-title">About the Collection</h2>
+
+    <div class="about-content">
+      <p class="lead">
+        Oscar's Classic Model Cars Collection represents over 30 years of passionate collecting,
+        featuring more than 700 vintage automotive miniatures from the pre-1960 era.
+      </p>
+
+      <h3>The Collector</h3>
+      <p>
+        Oscar Alvarado began collecting classic model cars in 1994, drawn to the craftsmanship
+        and historical significance of vintage automotive miniatures. What started as a small
+        hobby has grown into one of the most comprehensive collections of pre-war and early
+        post-war model vehicles.
+      </p>
+
+      <h3>The Collection</h3>
+      <p>
+        The collection spans vehicles from 1862 to the 1960s, featuring models from renowned
+        manufacturers including Matchbox, Dinky, Corgi, Franklin Mint, Brooklin Models, and many others.
+        Each piece is carefully catalogued with details about the original vehicle, the model manufacturer,
+        scale, materials, and production information.
+      </p>
+
+      <h3>Featured Categories</h3>
+      <ul>
+        <li><strong>Touring Cars</strong> - Classic automobiles for everyday travel</li>
+        <li><strong>Racing Cars</strong> - Vintage motorsport legends</li>
+        <li><strong>Commercial Vehicles</strong> - Trucks, vans, and delivery vehicles</li>
+        <li><strong>Buses & Coaches</strong> - Public transportation through the ages</li>
+        <li><strong>Emergency Vehicles</strong> - Fire engines, ambulances, and police cars</li>
+        <li><strong>Steam & Locomotives</strong> - Early mechanical transportation</li>
+      </ul>
+
+      <h3>Scales & Materials</h3>
+      <p>
+        The majority of models are in 1:43 scale, the most popular size for collectible diecast vehicles.
+        The collection includes pieces made from diecast metal, white metal, plastic, and resin,
+        representing the evolution of model-making techniques over decades.
+      </p>
+
+      <h3>This Website</h3>
+      <p>
+        This digital catalogue was created to share the collection with fellow enthusiasts worldwide.
+        Originally maintained as a blog, the collection has been migrated to this modern platform
+        for easier browsing, searching, and filtering.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .about-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+
+  .about-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 2rem;
+    text-align: center;
+  }
+
+  .about-content {
+    background: var(--card-background);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .lead {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+
+  li {
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  li:last-child {
+    border-bottom: none;
+  }
+
+  li strong {
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 768px) {
+    .about-title {
+      font-size: 2rem;
+    }
+
+    .about-content {
+      padding: 1.5rem;
+    }
+  }
+</style>
